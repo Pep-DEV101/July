@@ -13,3 +13,5 @@
   * https://peter.sh/experiments/chromium-command-line-switches/
 ##### **Official**
   * https://pptr.dev
+### Async JS
+* https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/async%20&%20performance/README.md#you-dont-know-js-async--performance
