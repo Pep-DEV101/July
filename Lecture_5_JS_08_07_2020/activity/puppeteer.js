@@ -46,8 +46,8 @@ bopenP.then(function (browser) {
         return allLinkP
     })
     .then(function () {
-        let allQuestionsP = 
-        gPage.$$("a.js-track-click.challenge-list-item");
+        let allQuestionsP =
+            gPage.$$("a.js-track-click.challenge-list-item");
         return allQuestionsP;
     }).then(function (allQuestions) {
         let linkPArr = [];
@@ -58,10 +58,20 @@ bopenP.then(function (browser) {
             }, allQuestions[i]);
             linkPArr.push(linkP);
         }
+
+
         let allLinkP = Promise.all(linkPArr);
         return allLinkP
     }).then(function (allLinks) {
         console.log(allLinks);
+        let newArr = [];
+        for (let i = 0; i < allLinks.length; i++) {
+            let fullLink = `https://www.hackerrank.com${allLinks[i]}`;
+            newArr.push(fullLink);
+        }
+        let firstQP = solveChallenge(newArr[0]);
+        console.log("Solve challenge called");
+        return firstQP;
     })
     .catch(function (err) {
         console.log(err);
@@ -69,7 +79,8 @@ bopenP.then(function (browser) {
 
 function navgatorFn(selector) {
     return new Promise(function (resolve, reject) {
-        let navigationP = Promise.all([gPage.click(selector), gPage.waitForNavigation({ waitUntil: "networkidle0" })]);
+        let navigationP = Promise.all([gPage.click(selector),
+        gPage.waitForNavigation({ waitUntil: "networkidle0" })]);
         navigationP
             .then(function () {
                 console.log("Successfully Navigated to next page");
@@ -79,7 +90,49 @@ function navgatorFn(selector) {
             })
     })
 }
-
 function solveChallenge(url) {
+    // url
+    return new Promise(function (resolve, reject) {
+        let gotoQUestionPageP = gPage.goto(url);
+        gotoQUestionPageP
+            .then(function () {
+                let wp = gPage.waitForSelector("a[data-attr2='Editorial']");
+                return wp;
+            }).then(function () {
+                let goToEditorial = navgatorFn("a[data-attr2='Editorial']");
+                return goToEditorial;
+            }).then(function () {
+                let waitForHandleLockBtn = handleLockBtn();
+                return waitForHandleLockBtn;
+            })
+            .then(function () {
+                resolve();
+            }).catch(function (err) {
+                reject(err);
+            })
+        // goto url
+        // click on editor tab
+        // if lock btn => click
+        // leave 
+        // code copy 
+        // go to proble tab 
+        // paste code in vscode 
+        // submit 
 
+    })
+}
+function handleLockBtn() {
+    return new Promise(function (resolve, reject) {
+        let waitForlockBtn = gPage.waitForSelector(".ui-tabs-wrap.left-pane .ui-btn.ui-btn-normal.ui-btn-primary");
+        waitForlockBtn
+        .then(function () {
+            let elementClickP = gPage.click(".ui-tabs-wrap.left-pane .ui-btn.ui-btn-normal.ui-btn-primary");
+            return elementClickP;
+        }).catch(function (err) {
+            console.log("Lock Btn not found");
+            resolve();
+        }).then(function () {
+            resolve();
+        })
+    })
 }
