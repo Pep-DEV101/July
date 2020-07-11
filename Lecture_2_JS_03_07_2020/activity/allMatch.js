@@ -3,8 +3,8 @@ let fs = require("fs");
 let MatchRef = require("./match.js");
 let cheerio = require("cheerio");
 console.log("Request send");
-function processAllMatch(url) {
 
+function processAllMatch(url) {
     request(url, cb);
 }
 function cb(err, header, body) {
@@ -19,6 +19,7 @@ function cb(err, header, body) {
         console.log(header);
     }
 }
+
 function parsehtml(data) {
     let ch = cheerio.load(data);
     let cards = ch(".col-md-8.col-16");

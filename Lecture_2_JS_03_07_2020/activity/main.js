@@ -26,6 +26,5 @@ function parsehtml(data) {
     let completeLink = "https://www.espncricinfo.com" + link;
     // console.log(completeLink);
     AllMatchRef.processAllMatch(completeLink);
-
     // console.log("Saved All cards");
 }

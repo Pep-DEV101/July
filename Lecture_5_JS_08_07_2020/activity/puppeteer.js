@@ -1,6 +1,6 @@
 let puppeteer = require("puppeteer");
 // npm install puppeteer
-let gPage;
+let gPage, glangCodeElems;
 let { email, password } = require("../../credentials.json");
 let bopenP = puppeteer.launch({
     headless: false,
@@ -58,8 +58,6 @@ bopenP.then(function (browser) {
             }, allQuestions[i]);
             linkPArr.push(linkP);
         }
-
-
         let allLinkP = Promise.all(linkPArr);
         return allLinkP
     }).then(function (allLinks) {
@@ -101,9 +99,17 @@ function solveChallenge(url) {
             }).then(function () {
                 let goToEditorial = navgatorFn("a[data-attr2='Editorial']");
                 return goToEditorial;
-            }).then(function () {
+            })
+            .then(function () {
                 let waitForHandleLockBtn = handleLockBtn();
                 return waitForHandleLockBtn;
+            })
+            .then(function () {
+                let selectCodeP = copyCode();
+                return selectCodeP;
+            }).then(function (code) {
+                let submitCodeP = submitCode(code);
+                return submitCodeP;
             })
             .then(function () {
                 resolve();
@@ -121,18 +127,101 @@ function solveChallenge(url) {
 
     })
 }
+function copyCode() {
+    return new Promise(function (resolve, reject) {
+        let langNameP = gPage.$$(".editorial-code-box .hackdown-content h3");
+        let langCodP = gPage.$$(".editorial-code-box .hackdown-content .highlight");
+        let combinedP = Promise.all([langNameP, langCodP]);
+        combinedP.then(function (combinedArr) {
+            let langNamesElems = combinedArr[0];
+            glangCodeElems = combinedArr[1];
+            let langNamePArr = [];
+            for (let i = 0; i < langNamesElems.length; i++) {
+                let langNameP = gPage.evaluate(function (elem) { return elem.textContent; }, langNamesElems[i]);
+                langNamePArr.push(langNameP);
+            }
+            return Promise.all(langNamePArr);
+        })
+            .then(function (langNameArr) {
+                for (let i = 0; i < langNameArr.length; i++) {
+                    if (langNameArr[i] == 'C++') {
+                        let codePromise = gPage.evaluate(function (elem) { return elem.textContent }, glangCodeElems[i])
+                        return codePromise;
+                    }
+                }
+            })
+            .then(function (code) {
+                resolve(code);
+            }).catch(function () {
+                reject(err);
+            })
+    })
+}
+
 function handleLockBtn() {
     return new Promise(function (resolve, reject) {
         let waitForlockBtn = gPage.waitForSelector(".ui-tabs-wrap.left-pane .ui-btn.ui-btn-normal.ui-btn-primary");
         waitForlockBtn
-        .then(function () {
-            let elementClickP = gPage.click(".ui-tabs-wrap.left-pane .ui-btn.ui-btn-normal.ui-btn-primary");
-            return elementClickP;
+            .then(function () {
+                let elementClickP = gPage.click(".ui-tabs-wrap.left-pane .ui-btn.ui-btn-normal.ui-btn-primary");
+                return elementClickP;
+            }).catch(function (err) {
+                console.log("Lock Btn not found");
+                resolve();
+            }).then(function () {
+                resolve();
+            })
+    })
+}
+
+function submitCode(code) {
+    return new Promise(function (resolve, reject) {
+        let waitForNavigationP = navgatorFn("a[data-attr2='Problem']");
+        waitForNavigationP.then(function () {
+            let waitFOrGInput = gPage.waitForSelector(".custom-input-checkbox");
+            return waitFOrGInput;
+        })
+            .then(function () {
+                let inputWillBeClickedP = gPage.click(".custom-input-checkbox");
+                return inputWillBeClickedP;
+            }).then(function () {
+                let inputP = gPage.click(".custominput");
+                return inputP
+            })
+            .then(function () {
+                let codeWillEneterdP = gPage.type(".custominput", code);
+                return codeWillEneterdP;
+            }).then(function () {
+                let ctrlPressedP = gPage.keyboard.down("Control");
+                return ctrlPressedP;
+            })
+            .then(function () {
+                let ap = gPage.keyboard.press("a");
+                return ap
+            }).then(function () {
+                let cp = gPage.keyboard.press("x");
+                return cp;
+            }).then(function () {
+                let inputClickP = gPage.click(".monaco-editor.no-user-select.vs");
+                return inputClickP;
+            }).then(function () {
+                let ca = gPage.keyboard.press("a");
+                return ca;
+            })
+            .then(function () {
+                let vp = gPage.keyboard.press("v");
+                return vp;
+            }).then(function () {
+                let submitClickP = gPage.click(".pull-right.btn.btn-primary.hr-monaco-submit");
+                return submitClickP
+            }).then(function () {
+                let ctrlPressedUpP = gPage.keyboard.up("Control");
+                return ctrlPressedUpP;
+            })
+        then(function () {
+            resolve()
         }).catch(function (err) {
-            console.log("Lock Btn not found");
-            resolve();
-        }).then(function () {
-            resolve();
+            reject();
         })
     })
 }
