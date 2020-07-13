@@ -68,11 +68,18 @@ bopenP.then(function (browser) {
             newArr.push(fullLink);
         }
 
-        for (let i = 0; i < allLinks.length; i++) {
-
-            let firstQP = solveChallenge(newArr[i]);
+        let f1p = solveChallenge(newArr[0]);
+        for (let i = 1; i < newArr.length; i++) {
+            f1p = f1p.then(function () {
+                let nxtfp = solveChallenge(newArr[i]);
+                return nxtfp;
+            })
         }
-        
+
+        return f1p;
+
+    }).then(function(){
+        console.log("All question submitted");
     })
     .catch(function (err) {
         console.log(err);
@@ -220,7 +227,7 @@ function submitCode(code) {
             }).then(function () {
                 let ctrlPressedUpP = gPage.keyboard.up("Control");
                 return ctrlPressedUpP;
-            })
+            }).
         then(function () {
             resolve()
         }).catch(function (err) {
