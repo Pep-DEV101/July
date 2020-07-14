@@ -17,7 +17,7 @@ bopenP.then(function (browser) {
     let pageWillBeOpenedP = page.goto("https://www.hackerrank.com/auth/login");
     gPage = page;
     return pageWillBeOpenedP;
-}).then(function (res) {
+}).then(function () {
     console.log("Google home page");
     // console.log(res);
     let emailTypeP = gPage.type("#input-1", email);
