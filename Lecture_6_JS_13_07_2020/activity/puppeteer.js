@@ -78,7 +78,7 @@ bopenP.then(function (browser) {
 
         return f1p;
 
-    }).then(function(){
+    }).then(function () {
         console.log("All question submitted");
     })
     .catch(function (err) {
@@ -139,10 +139,15 @@ function solveChallenge(url) {
 }
 function copyCode() {
     return new Promise(function (resolve, reject) {
-        let langNameP = gPage.$$(".editorial-code-box .hackdown-content h3");
-        let langCodP = gPage.$$(".editorial-code-box .hackdown-content .highlight");
-        let combinedP = Promise.all([langNameP, langCodP]);
-        combinedP.then(function (combinedArr) {
+        let waitForCode = gPage.waitForSelector(".editorial-code-box .hackdown-content .highlight",{visible:true});
+        waitForCode
+            .then(function () {
+                let langNameP = gPage.$$(".editorial-code-box .hackdown-content h3");
+                let langCodP = gPage.$$(".editorial-code-box .hackdown-content .highlight");
+                let combinedP = Promise.all([langNameP, langCodP]);
+                return combinedP;
+            })
+.then(function (combinedArr) {
             let langNamesElems = combinedArr[0];
             glangCodeElems = combinedArr[1];
             let langNamePArr = [];
@@ -161,6 +166,7 @@ function copyCode() {
                 }
             })
             .then(function (code) {
+                console.log(code)
                 resolve(code);
             }).catch(function () {
                 reject(err);
@@ -228,10 +234,10 @@ function submitCode(code) {
                 let ctrlPressedUpP = gPage.keyboard.up("Control");
                 return ctrlPressedUpP;
             }).
-        then(function () {
-            resolve()
-        }).catch(function (err) {
-            reject();
-        })
+            then(function () {
+                resolve()
+            }).catch(function (err) {
+                reject();
+            })
     })
 }
