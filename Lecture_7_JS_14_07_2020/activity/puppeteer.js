@@ -22,12 +22,12 @@ let { email, password } = require("../../credentials.json");
         await navigatorFn("a[data-analytics='NavBarProfileDropDownAdministration']")
         await page.waitForSelector(".nav-tabs.nav.admin-tabbed-nav li", { visible: true });
         let allTabs = await page.$$(".nav-tabs.nav.admin-tabbed-nav li");
-        await allTabs[1].click();
+        await Promise.all([allTabs[1].click(),page.waitForNavigation({waitUntil:"networkidle0"})]);
         let challenges = require("./challenge");
         let createChallengePageLink = page.url();
+        console.log(createChallengePageLink)
         for (let i = 0; i < challenges.length; i++) {
             await page.goto(createChallengePageLink);
-
             await createChallenge(challenges[i]);
         }
         console.log("Navigated");
@@ -35,7 +35,6 @@ let { email, password } = require("../../credentials.json");
         console.log(err);
     }
 })();
-
 async function navigatorFn(selector) {
     try {
         await Promise.all(
@@ -47,8 +46,17 @@ async function navigatorFn(selector) {
     }
 
 }
-
 async function createChallenge(ch) {
     await gPage.waitForSelector(".btn.btn-green.backbone.pull-right", { visible: true });
     await navigatorFn(".btn.btn-green.backbone.pull-right");
+    await gPage.waitForSelector("#name", { visible: true });
+    await gPage.type("#name", ch["Challenge Name"]);
+    await gPage.type("#preview", ch["Description"]);
+    await gPage.type("#problem_statement-container .CodeMirror textarea", ch["Problem Statement"]);
+    await gPage.type("#input_format-container .CodeMirror textarea", ch["Input Format"]);
+    await gPage.type("#constraints-container .CodeMirror textarea", ch["Constraints"]);
+    await gPage.type("#output_format-container .CodeMirror textarea", ch["Output Format"]);
+    await gPage.type("#tags_tag", ch["Tags"]);
+    await gPage.keyboard.press("Enter");
+    await gPage.click(".save-challenge.btn.btn-green");
 }
