@@ -49,8 +49,9 @@ async function navigatorFn(selector) {
     }
 }
 async function handleSinglePage(browser) {
+
     await gPage.waitForSelector(".backbone.block-center",
-     { visible: true });
+        { visible: true });
     let allAnchors = await gPage.$$(".backbone.block-center");
     // console.log(allAnchors.length);
     let allLinksP = []
@@ -63,36 +64,44 @@ async function handleSinglePage(browser) {
     }
     let allLinks = await Promise.all(allLinksP);
     // console.log(allLinks)
-    let fullLinkArr = allLinks.map(function (elem)
-     { return `https://www.hackerrank.com${elem}` });
+    let fullLinkArr = allLinks.map(function (elem) { return `https://www.hackerrank.com${elem}` });
     // console.log(fullLinkArr)
-    let allMP=[]
+    let allMP = []
     for (let i = 0; i < fullLinkArr.length; i++) {
         let nTab = await browser.newPage();
         let AddModeratorP = createModerator(nTab, fullLinkArr[i]);
         allMP.push(AddModeratorP)
     }
-   await Promise.all(allMP);
-   console.log("All Moderatos of one page added")
+    await Promise.all(allMP);
+    console.log("All Moderators of one page added");
+
+    let allPaginationNavs = await gPage.$$(".pagination ul li");
+    let nxtPageTab = allPaginationNavs[allPaginationNavs.length - 2];
+    let isDisabled = await gPage.evaluate(function (elem) { return elem.getAttribute("class") }, nxtPageTab);
+    if (isDisabled == "disabled") {
+        return;
+    } else {
+        await Promise.all([nxtPageTab.click(), gPage.waitForNavigation({ waitUntil: "networkidle0" })]);
+        handleSinglePage(browser);
+    }
 
 }
 async function createModerator(nTab, url) {
-    try{
+    try {
         await nTab.goto(url);
         await handleConfirmBtn(nTab);
-        await nTab.waitForSelector("li[data-tab='moderators']", 
-        { visible: true });
-        await Promise.all([nTab.click("li[data-tab='moderators']"), 
+        await nTab.waitForSelector("li[data-tab='moderators']",
+            { visible: true });
+        await Promise.all([nTab.click("li[data-tab='moderators']"),
         nTab.waitForNavigation({ waitUntil: "networkidle0" })]);
         await nTab.waitForSelector("#moderator", { visible: true });
         await nTab.type("#moderator", "Jasbir");
         await nTab.keyboard.press("Enter");
         await nTab.click(".save-challenge.btn.btn-green");
         await nTab.close();
-    }catch(err){
-return err;
+    } catch (err) {
+        return err;
     }
-    
     // open page
     // enter name of moderator
     // submit
