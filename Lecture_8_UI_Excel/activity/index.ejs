@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%=title%></title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- #menu-container+#menu-options-container+(#formula-container>(input#address-input+input#formula-input))+#cell-container+#sheets -->
+    <div id="menu-container">Menu container</div>
+    <div id="menu-options-container">Menu Options</div>
+    <div id="formula-container">
+        <input type="text" id="address-input">
+        <input type="text" id="formula-input">
+    </div>
+    <div id="cell-container">
+        <div id="tl-cell"></div>
+        <div id="top-row">
+            <%for(let j=0;j<26;j++){%>
+            <div class="cell">
+
+                <%=String.fromCharCode(j+65)%>
+            </div>
+            <%}%>
+        </div>
+        <div id="left-col">
+            <%for(let i=0;i<100;i++){%>
+            <div class="cell">
+                <%=i+1%>
+            </div>
+            <%}%>
+    </div>
+
+    <div id="grid">
+        <%for(let i=0;i<100;i++){%>
+            <div class="row">
+                <%for(let j=0;j<26;j++){%>
+                <div class="cell" contenteditable="true">cell</div>
+                <%}%>
+        </div>
+        <%}%>
+            </div>
+        </div>
+        <div id="sheets">Sheets</div>
+</body>
+
+</html>
