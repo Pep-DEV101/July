@@ -38,13 +38,14 @@
         <%for(let i=0;i<100;i++){%>
             <div class="row">
                 <%for(let j=0;j<26;j++){%>
-                <div class="cell" contenteditable="true">cell</div>
+                <div class="cell" contenteditable="true" rowId=<%=i%> colId=<%=j%>>cell</div>
                 <%}%>
         </div>
         <%}%>
             </div>
         </div>
         <div id="sheets">Sheets</div>
+        <script src="index.js"></script>
 </body>
 
 </html>

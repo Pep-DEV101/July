@@ -26,6 +26,7 @@ html,body{
     height: calc(100vh - 130px);
     background-color: lightgreen;
     overflow: auto;
+    position: relative;
 }
 #sheets{
     height: 20px;
@@ -35,24 +36,40 @@ html,body{
     border: 0.2px solid;
     min-height: 25px;
     /* width: 91px; */
-    text-align: center;
-   
+    text-align: center;  
     border-radius: 1px;
 }
 #top-row .cell,#grid .cell{
     min-width: 85px;
+    max-width:85px;
 }
 .row{
     display: flex;
 }
-#tl-cell{
+#tl-cell{   
     background-color: #50a750;
     width: 25px;
-    height: 25px
+    height: 25px;
+    position: absolute;
 }
 #top-row{
 display: flex;
+position: absolute;
+left:25px;
+top:0px;
+}
+#top-row .cell{
+    background-color: rgb(109, 189, 109);
 }
 #left-col .cell{
-    width:25px
+    width:25px;
+}
+#left-col{
+    position: absolute;
+    top:25px;
+}
+#grid{
+    position: absolute;
+    top:25px;
+    left:25px;    
 }
