@@ -10,8 +10,20 @@
 
 <body>
     <!-- #menu-container+#menu-options-container+(#formula-container>(input#address-input+input#formula-input))+#cell-container+#sheets -->
-    <div id="menu-container">Menu container</div>
-    <div id="menu-options-container">Menu Options</div>
+    <div id="menu-container">
+        <div id="File" class="menu">File</div>
+        <div id="Home" class="menu">Home</div>
+    </div>
+    <div id="menu-options-container">
+        <div id="File-menu-options" class="menu-options">
+            <div id="New">New</div>
+            <div id="Open">Open</div>
+            <div id="Save">Save</div>
+        </div>
+        <div id="Home-menu-options" class="menu-options">
+            Home Options
+        </div>
+    </div>
     <div id="formula-container">
         <input type="text" id="address-input">
         <input type="text" id="formula-input">
@@ -43,6 +55,7 @@
         </div>
         <%}%>
             </div>
+
         </div>
         <div id="sheets">Sheets</div>
         <script src="index.js"></script>

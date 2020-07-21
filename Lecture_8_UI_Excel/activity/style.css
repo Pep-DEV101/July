@@ -12,16 +12,33 @@ html,body{
 #menu-container{
     height: 20px;
     border: 1px solid;
+    display: flex;
+    width: 90px;
+    justify-content: space-around;
 
 }
 #menu-options-container{
     height: 60px;
     border: 1px solid rebeccapurple;
 }
+.menu{
+}
+
+.menu-options{
+    display: none;
+    justify-content: space-evenly;
+    width: 265px;
+}
+
+.menu-options.active{
+    display: flex;
+}
+
 #formula-container{
     height: 30px;
     border: 1px solid;
 }
+/* Cell container */
 #cell-container{
     height: calc(100vh - 130px);
     background-color: lightgreen;
@@ -51,12 +68,14 @@ html,body{
     width: 25px;
     height: 25px;
     position: absolute;
+z-index:3;
 }
 #top-row{
 display: flex;
 position: absolute;
 left:25px;
 top:0px;
+z-index:2;
 }
 #top-row .cell{
     background-color: rgb(109, 189, 109);
@@ -67,6 +86,8 @@ top:0px;
 #left-col{
     position: absolute;
     top:25px;
+    z-index:2;
+    background-color: rgb(109, 189, 109);
 }
 #grid{
     position: absolute;
