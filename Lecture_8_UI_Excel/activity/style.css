@@ -28,11 +28,40 @@ html,body{
     display: none;
     justify-content: space-evenly;
     width: 265px;
+    height: 100%;
+    align-items: center;
 }
 
 .menu-options.active{
     display: flex;
 }
+.f-row{
+    display: flex;
+}
+.formatting-col{
+
+}
+
+.style-buttons{
+
+}
+.colors{
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #formula-container{
     height: 30px;
