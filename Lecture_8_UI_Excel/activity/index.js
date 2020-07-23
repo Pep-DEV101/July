@@ -7,11 +7,16 @@ $(document).ready(function () {
     let db;
     let lsc;
     $("#grid .cell").on("click", function () {
-        let rowId = Number($(this).attr("rowId")) + 1;
-        let colId = Number($(this).attr("colId")) + 65;
-        let address = String.fromCharCode(colId) + rowId;
+        let rId = Number($(this).attr("rowId")) + 1;
+        let cId = Number($(this).attr("colId")) + 65;
+        let address = String.fromCharCode(cId) + rId;
         // input => value attribute
+
         $("#address-input").val(address);
+        
+        let { rowId, colId } = getRcfromElem(this);
+        let cellObject = db[rowId][colId];
+        $("#formula-input").val(cellObject.formula);
         lsc = this;
     })
     $("#cell-container").on("scroll", function () {
@@ -67,7 +72,9 @@ $(document).ready(function () {
                     fontSize: 12,
                     color: "black",
                     fontFamily: "cursive",
-                    bColor: "white"
+                    bColor: "white",
+                    formula: "",
+                    children: []
 
                 };
                 row.push(cell);
@@ -109,20 +116,24 @@ $(document).ready(function () {
     // ************************Formula*******************************
     $("#grid .cell").on("blur", function () {
         let { rowId, colId } = getRcfromElem(this);
-        db[rowId][colId].value = $(this).html();
+        let val = $(this).html();
+        updateCell(rowId, colId, val);
     })
     $("#formula-input").on("blur", function () {
         // to get data from input use val
         let formula = $(this).val();
-        console.log(formula);
+        // console.log(formula);
+
         let ans = evaluate(formula);
-        alert(ans);
+        // alert(ans);
         let address = $("#address-input").val();
         let { rowId, colId } = getRCfromAddress(address);
         // console.log(rowId + " " + colId);
+        let cellObject = db[rowId][colId];
+        cellObject.formula = formula;
+        setupFormula(formula, address);
         updateCell(rowId, colId, ans);
     })
-
     function evaluate(formula) {
         // ( A1 + A2 )
         let fComp = formula.split(" ");
@@ -146,7 +157,36 @@ $(document).ready(function () {
     }
     function updateCell(rowId, colId, ans) {
         $(`#grid .cell[rowId=${rowId}][colId=${colId}]`).html(ans);
+        let cellObject = db[rowId][colId];
+        cellObject.value = ans;
+        //tell your childrens to update themselves  
+        for (let i = 0; i < cellObject.children.length; i++) {
+            let cAddress = cellObject.children[i];
+            let chObject = getRCfromAddress(cAddress);
+            let chCellObject = db[chObject.rowId][chObject.colId];
+            let ans = evaluate(chCellObject.formula);
+            updateCell(chObject.rowId, chObject.colId, ans)
+        }
     }
+    function setupFormula(formula, address) {
+        // go to parent
+        // add yourself to parent
+        let fComp = formula.split(" ");
+        // [(,A1,+,A2,)]
+        console.log(fComp)
+        for (let i = 0; i < fComp.length; i++) {
+            let elem = fComp[i];
+            let charCode = elem.charCodeAt(0);
+            if (charCode >= 65 && charCode <= 90) {
+                // valid cell
+                let { rowId, colId } = getRCfromAddress(fComp[i]);
+                let children = db[rowId][colId].children;
+                children.push(address);
+            }
+
+        }
+    }
+
     function getRCfromAddress(address) {
         let charCode = address.charCodeAt(0);
         let colId = Number(charCode) - 65;
