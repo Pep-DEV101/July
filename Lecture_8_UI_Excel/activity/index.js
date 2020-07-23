@@ -1,6 +1,7 @@
 const $ = require("jquery");
 const dialog = require("electron").remote.dialog;
 const fs = require("fs");
+const { formatWithOptions } = require("util");
 $(document).ready(function () {
     // console.log("Jquery loaded on ui");
     let db;
@@ -39,13 +40,10 @@ $(document).ready(function () {
         let { rowId, colId } = getRcfromElem(lsc);
         console.log(db);
         let cellObject = db[rowId][colId];
-        let isBold=cellObject.bold;
-        // console.log(isBold)
-        // console.log(isBold);
+        let isBold = cellObject.bold;
         $(lsc).css("font-weight", isBold ? "normal" : "bold");
         cellObject.bold = !isBold;
     })
-
     // *****************************New-Open-Save***************
     $("#New").on("click", function () {
         db = []
@@ -57,9 +55,20 @@ $(document).ready(function () {
                 $(allCellsofaR[j]).html("");
                 // text-decoration : underline,none
                 // font-style : italic: normal
+                // font-size
+                // font-family
+                // color
+                // background-color
                 let cell = {
                     value: "",
-                    bold: false
+                    bold: false,
+                    italic: false,
+                    underline: false,
+                    fontSize: 12,
+                    color: "black",
+                    fontFamily: "cursive",
+                    bColor: "white"
+
                 };
                 row.push(cell);
             }
@@ -95,10 +104,55 @@ $(document).ready(function () {
             }
         }
     })
+
+
+    // ************************Formula*******************************
     $("#grid .cell").on("blur", function () {
         let { rowId, colId } = getRcfromElem(this);
-        db[rowId][colId].value= $(this).html();
+        db[rowId][colId].value = $(this).html();
     })
+    $("#formula-input").on("blur", function () {
+        // to get data from input use val
+        let formula = $(this).val();
+        console.log(formula);
+        let ans = evaluate(formula);
+        alert(ans);
+        let address = $("#address-input").val();
+        let { rowId, colId } = getRCfromAddress(address);
+        // console.log(rowId + " " + colId);
+        updateCell(rowId, colId, ans);
+    })
+
+    function evaluate(formula) {
+        // ( A1 + A2 )
+        let fComp = formula.split(" ");
+        // [(,A1,+,A2,)]
+        console.log(fComp)
+        for (let i = 0; i < fComp.length; i++) {
+            let elem = fComp[i];
+            let charCode = elem.charCodeAt(0);
+            if (charCode >= 65 && charCode <= 90) {
+                // valid cell
+                let { rowId, colId } = getRCfromAddress(fComp[i]);
+                let val = db[rowId][colId].value;
+                formula = formula.replace(fComp[i], val);
+            }
+
+        }
+        // infix evaluation 
+        let ans = eval(formula);
+        return ans;
+
+    }
+    function updateCell(rowId, colId, ans) {
+        $(`#grid .cell[rowId=${rowId}][colId=${colId}]`).html(ans);
+    }
+    function getRCfromAddress(address) {
+        let charCode = address.charCodeAt(0);
+        let colId = Number(charCode) - 65;
+        let rowId = Number(address.substring(1)) - 1;
+        return { colId, rowId };
+    }
     function getRcfromElem(elem) {
         let rowId = $(elem).attr("rowId");
         let colId = $(elem).attr("colId");
@@ -107,7 +161,7 @@ $(document).ready(function () {
             colId
         }
     }
-
+    // ********************init******************************************
     function init() {
         $("#File").trigger("click");
         $("#New").trigger("click");
