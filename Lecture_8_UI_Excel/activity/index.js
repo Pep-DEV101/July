@@ -1,7 +1,6 @@
 const $ = require("jquery");
 const dialog = require("electron").remote.dialog;
 const fs = require("fs");
-const { formatWithOptions } = require("util");
 $(document).ready(function () {
     // console.log("Jquery loaded on ui");
     let db;
@@ -11,9 +10,7 @@ $(document).ready(function () {
         let cId = Number($(this).attr("colId")) + 65;
         let address = String.fromCharCode(cId) + rId;
         // input => value attribute
-
         $("#address-input").val(address);
-        
         let { rowId, colId } = getRcfromElem(this);
         let cellObject = db[rowId][colId];
         $("#formula-input").val(cellObject.formula);
@@ -74,7 +71,8 @@ $(document).ready(function () {
                     fontFamily: "cursive",
                     bColor: "white",
                     formula: "",
-                    children: []
+                    children: [],
+                    parent: []
 
                 };
                 row.push(cell);
@@ -111,11 +109,15 @@ $(document).ready(function () {
             }
         }
     })
-
-
     // ************************Formula*******************************
     $("#grid .cell").on("blur", function () {
         let { rowId, colId } = getRcfromElem(this);
+        let cellObject = db[rowId][colId];
+        // "",false,null,undefined,0
+        let address = $("#address-input").val();
+        if (cellObject.formula) {
+            removeFormula(cellObject, address);
+        }
         let val = $(this).html();
         updateCell(rowId, colId, val);
     })
@@ -123,17 +125,21 @@ $(document).ready(function () {
         // to get data from input use val
         let formula = $(this).val();
         // console.log(formula);
-
-        let ans = evaluate(formula);
-        // alert(ans);
         let address = $("#address-input").val();
         let { rowId, colId } = getRCfromAddress(address);
-        // console.log(rowId + " " + colId);
         let cellObject = db[rowId][colId];
+        // isFormulaValid
+        if (cellObject.formula) {
+            removeFormula(cellObject, address);
+        }
         cellObject.formula = formula;
-        setupFormula(formula, address);
+        let ans = evaluate(formula);
+        // alert(ans);
+        // console.log(rowId + " " + colId);
+        setupFormula(formula, address, cellObject);
         updateCell(rowId, colId, ans);
     })
+
     function evaluate(formula) {
         // ( A1 + A2 )
         let fComp = formula.split(" ");
@@ -150,6 +156,7 @@ $(document).ready(function () {
             }
 
         }
+
         // infix evaluation 
         let ans = eval(formula);
         return ans;
@@ -168,7 +175,7 @@ $(document).ready(function () {
             updateCell(chObject.rowId, chObject.colId, ans)
         }
     }
-    function setupFormula(formula, address) {
+    function setupFormula(formula, address, cellObject) {
         // go to parent
         // add yourself to parent
         let fComp = formula.split(" ");
@@ -182,11 +189,33 @@ $(document).ready(function () {
                 let { rowId, colId } = getRCfromAddress(fComp[i]);
                 let children = db[rowId][colId].children;
                 children.push(address);
+                cellObject.parent.push(fComp[i]);
             }
 
         }
     }
 
+    function removeFormula(cellObject, caddress) {
+        //  remove yourself from parent
+        for (let i = 0; i < cellObject.parent.length; i++) {
+            let parentAddr = cellObject.parent[i];
+            let { rowId, colId } = getRCfromAddress(parentAddr);
+            let pObject = db[rowId][colId];
+            // let newArr = pObject.children.filter()
+
+
+            let nArr = pObject.children.filter(function (elem) {
+                return elem != caddress;
+            });
+pObject.children=nArr;
+        }
+
+        cellObject.parent = [];
+
+        cellObject.formula = "";
+    }
+
+    // **************helper fn*************************
     function getRCfromAddress(address) {
         let charCode = address.charCodeAt(0);
         let colId = Number(charCode) - 65;
